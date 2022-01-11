@@ -109,12 +109,12 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
   const double I_syn_exc = g_ex * ( V - node.P_.E_ex );
   const double I_syn_inh = g_in * ( V - node.P_.E_in );
 
-  //TODO does not match with the equation in the paper 
+  //TODO does only match with the equation in the Maes paper if t_E = C/g_L
   const double I_spike =
     node.P_.Delta_T == 0. ? 0. : ( node.P_.g_L * node.P_.Delta_T * std::exp( ( V - V_th ) / node.P_.Delta_T ) );
 
-  // dv/dt
-  //TODO does not match with the equation in the paper. What about I_e and I_stim_ ? 
+  //TODO does only match with the equation in the Maes paper if t_E = C/g_L. 
+  //What about I_e and I_stim_ ? 
   f[ S::V_M ] = is_refractory ? 0. : ( -node.P_.g_L * ( V - node.P_.E_L ) + I_spike - I_syn_exc - I_syn_inh - w
                                        + node.P_.I_e + node.B_.I_stim_ ) / node.P_.C_m;
 
@@ -127,11 +127,11 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
   // Synaptic Conductance (nS)
   f[ S::G_INH ] = dg_in - g_in / node.P_.tau_syn_in;
 
-  //TODO set a to 0 as default to match the Maes paper
-  //The parameter a, which describes the level of subthreshold adaption, is set to zero per default. 
+  // Adaptation current w
+  //TODO keep a=0 or remove first part of equation?
+  //The parameter a, which describes the level of subthreshold adaption, is set to zero by default. 
   //This is because the equation for the adaption current in Meas et al. (2020) is simplified as 
-  //f[ S::W ] = - w / node.P_.tau_w and for this work the neuron model is developed.
-  // Adaptation current w.
+  //f[ S::W ] = - w / node.P_.tau_w and primarliy for this work the neuron model aief_cond_alpha_clopath is developed.
   f[ S::W ] = ( node.P_.a * ( V - node.P_.E_L ) - w ) / node.P_.tau_w;
 
   f[ S::V_TH ] = -( V_th - node.P_.V_th_rest ) / node.P_.tau_V_th;
@@ -153,27 +153,27 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
  * ---------------------------------------------------------------- */
 
 nest::aeif_cond_alpha_clopath::Parameters_::Parameters_()
-  : V_peak_( 20.0 )        // mV
-  , V_reset_( -60.0 )     // mV 
-  , t_ref_( 5.0 )         // ms
-  , C_m( 300.0 )          // pF
-  , g_L( C_m / 20.0 )     // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
-  , E_ex( 0.0 )           // mV 
-  , E_in( -75.0 )         // mV
-  , E_L( -70.0 )          // mV
-  , Delta_T( 2.0 )        // mV 
-  , tau_w( 100.0 )        // ms
-  , tau_V_th( 30.0 )      // ms
-  , V_th_rest( -52.0 )    // mV
+  : V_peak_( 20.0 )                   // mV
+  , V_reset_( -60.0 )                 // mV 
+  , t_ref_( 5.0 )                     // ms
+  , C_m( 300.0 )                      // pF
+  , g_L( C_m / 20.0 )                 // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
+  , E_ex( 0.0 )                       // mV 
+  , E_in( -75.0 )                     // mV
+  , E_L( -70.0 )                      // mV
+  , Delta_T( 2.0 )                    // mV 
+  , tau_w( 100.0 )                    // ms
+  , tau_V_th( 30.0 )                  // ms
+  , V_th_rest( -52.0 )                // mV
   , V_th_max( V_th_rest + 10.0 )      // mV ------ V_th_max = V_th_rest + A_T where A_T the adaptive threshold increase constant is
-  , tau_plus( 7.0 )       // ms
-  , tau_minus( 10.0 )     // ms
-  , tau_bar_bar( 500.0 )  // ms
-  , a( 0.0 )              // nS 
-  , b( 1000.0 )           // pA
-  , tau_syn_ex( 0.2 )     // ms
-  , tau_syn_in( 2.0 )     // ms
-  , I_e( 0.0 )            // pA ----- set to zero since it is probably not needed
+  , tau_plus( 7.0 )                   // ms ----- TODO
+  , tau_minus( 10.0 )                 // ms ----- TODO
+  , tau_bar_bar( 500.0 )              // ms
+  , a( 0.0 )                          // nS 
+  , b( 1000.0 )                       // pA
+  , tau_syn_ex( 0.2 )                 // ms ----- TODO
+  , tau_syn_in( 2.0 )                 // ms ----- TODO
+  , I_e( 0.0 )                        // pA ----- set to zero since it is probably not needed
   , gsl_error_tol( 1e-6 ) 
 {
 }
