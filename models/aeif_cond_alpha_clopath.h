@@ -145,7 +145,6 @@ u_bar_bar   mV      Low-pass filtered u_bar_minus
  b          pA      Spike-triggered adaptation
  Delta_T    mV      Slope factor
  tau_w      ms      Adaptation time constant
- I_sp       pA      Depolarizing spike afterpotential current magnitude
  V_peak     mV      Spike detection threshold
  V_th_max   mV      Value of V_th afer a spike
  V_th_rest  mV      Resting value of V_th
@@ -286,7 +285,6 @@ private:
     double V_th;       //!< Spike threshold in mV
     double tau_syn_ex; //!< Excitatory synaptic rise time
     double tau_syn_in; //!< Excitatory synaptic rise time
-    double I_sp;       //!< Depolarizing spike afterpotential current in pA
     double I_e;        //!< Intrinsic current in pA
 
     double gsl_error_tol; //!< Error bound for GSL integrator

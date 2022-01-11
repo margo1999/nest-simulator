@@ -174,7 +174,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::Parameters_()
   , V_th( -50.4 )         // mV
   , tau_syn_ex( 0.2 )     // ms
   , tau_syn_in( 2.0 )     // ms
-  , I_sp( 400.0 )         // pA
   , I_e( 0.0 )            // pA
   , gsl_error_tol( 1e-6 )
 {
@@ -234,7 +233,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::get( DictionaryDatum& d ) const
   def< double >( d, names::tau_syn_in, tau_syn_in );
   def< double >( d, names::a, a );
   def< double >( d, names::b, b );
-  def< double >( d, names::I_sp, I_sp );
   def< double >( d, names::Delta_T, Delta_T );
   def< double >( d, names::tau_w, tau_w );
   def< double >( d, names::tau_plus, tau_plus );
@@ -266,7 +264,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::set( const DictionaryDatum& d, Node*
 
   updateValueParam< double >( d, names::a, a, node );
   updateValueParam< double >( d, names::b, b, node );
-  updateValueParam< double >( d, names::I_sp, I_sp, node );
   updateValueParam< double >( d, names::Delta_T, Delta_T, node );
   updateValueParam< double >( d, names::tau_w, tau_w, node );
   updateValueParam< double >( d, names::tau_plus, tau_plus, node );
