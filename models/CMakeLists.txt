@@ -20,6 +20,7 @@
 set( models_sources
     ac_generator.h ac_generator.cpp
     aeif_cond_alpha.h aeif_cond_alpha.cpp
+    aeif_cond_alpha_clopath.h aeif_cond_alpha_clopath.cpp
     aeif_cond_alpha_multisynapse.h aeif_cond_alpha_multisynapse.cpp
     aeif_cond_beta_multisynapse.h aeif_cond_beta_multisynapse.cpp
     aeif_cond_exp.h aeif_cond_exp.cpp
