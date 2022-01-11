@@ -145,7 +145,6 @@ u_bar_bar   mV      Low-pass filtered u_bar_minus
  b          pA      Spike-triggered adaptation
  Delta_T    mV      Slope factor
  tau_w      ms      Adaptation time constant
- tau_z      ms      Spike afterpotential current time constant
  I_sp       pA      Depolarizing spike afterpotential current magnitude
  V_peak     mV      Spike detection threshold
  V_th_max   mV      Value of V_th afer a spike
@@ -276,7 +275,6 @@ private:
     double E_L;        //!< Leak reversal Potential (aka resting potential) in mV
     double Delta_T;    //!< Slope factor in ms
     double tau_w;      //!< Adaptation time-constant in ms
-    double tau_z;      //!< Spike afterpotential current time constant in ms
     double tau_V_th;   //!< Adaptive threshold time constant in ms
     double V_th_max;    //!< Value of V_th afer a spike in mV
     double V_th_rest;  //!< Resting value of V_th in mV
@@ -322,11 +320,10 @@ public:
       DG_INH,         // 3
       G_INH,          // 4
       W,              // 5
-      Z,              // 6
-      V_TH,            // 7
-      U_BAR_PLUS,      // 8
-      U_BAR_MINUS,     // 9
-      U_BAR_BAR,       // 10
+      V_TH,            // 6
+      U_BAR_PLUS,      // 7
+      U_BAR_MINUS,     // 8
+      U_BAR_BAR,       // 9
       STATE_VEC_SIZE
     };
 

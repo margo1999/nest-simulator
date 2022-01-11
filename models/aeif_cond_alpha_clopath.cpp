@@ -66,7 +66,6 @@ RecordablesMap< aeif_cond_alpha_clopath >::create()
   insert_( names::g_ex, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::G_EXC > );
   insert_( names::g_in, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::G_INH > );
   insert_( names::w, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::W > );
-  insert_( names::z, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::Z > );
   insert_( names::V_th, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::V_TH > );
   insert_( names::u_bar_plus, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::U_BAR_PLUS > );
   insert_( names::u_bar_minus, &aeif_cond_alpha_clopath::get_y_elem_< aeif_cond_alpha_clopath::State_::U_BAR_MINUS > );
@@ -102,7 +101,6 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
   const double& dg_in = y[ S::DG_INH ];
   const double& g_in = y[ S::G_INH ];
   const double& w = y[ S::W ];
-  const double& z = y[ S::Z ];
   const double& V_th = y[ S::V_TH ];
   const double& u_bar_plus = y[ S::U_BAR_PLUS ];
   const double& u_bar_minus = y[ S::U_BAR_MINUS ];
@@ -136,9 +134,6 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
   // Adaptation current w.
   f[ S::W ] = ( node.P_.a * ( V - node.P_.E_L ) - w ) / node.P_.tau_w;
 
-  // TODO Do I need z?
-  f[ S::Z ] = -z / node.P_.tau_z;
-
   f[ S::V_TH ] = -( V_th - node.P_.V_th_rest ) / node.P_.tau_V_th;
 
   //TODO where do these equations come from?
@@ -168,7 +163,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::Parameters_()
   , E_L( -70.6 )          // mV
   , Delta_T( 2.0 )        // mV
   , tau_w( 144.0 )        // ms
-  , tau_z( 40.0 )         // ms
   , tau_V_th( 50.0 )      // ms
   , V_th_max( 30.4 )      // mV
   , V_th_rest( -50.4 )    // mV
@@ -243,7 +237,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::get( DictionaryDatum& d ) const
   def< double >( d, names::I_sp, I_sp );
   def< double >( d, names::Delta_T, Delta_T );
   def< double >( d, names::tau_w, tau_w );
-  def< double >( d, names::tau_z, tau_z );
   def< double >( d, names::tau_plus, tau_plus );
   def< double >( d, names::tau_minus, tau_minus );
   def< double >( d, names::tau_bar_bar, tau_bar_bar );
@@ -276,7 +269,6 @@ nest::aeif_cond_alpha_clopath::Parameters_::set( const DictionaryDatum& d, Node*
   updateValueParam< double >( d, names::I_sp, I_sp, node );
   updateValueParam< double >( d, names::Delta_T, Delta_T, node );
   updateValueParam< double >( d, names::tau_w, tau_w, node );
-  updateValueParam< double >( d, names::tau_z, tau_z, node );
   updateValueParam< double >( d, names::tau_plus, tau_plus, node );
   updateValueParam< double >( d, names::tau_minus, tau_minus, node );
   updateValueParam< double >( d, names::tau_bar_bar, tau_bar_bar, node );
@@ -329,7 +321,7 @@ nest::aeif_cond_alpha_clopath::Parameters_::set( const DictionaryDatum& d, Node*
     throw BadProperty( "Refractory time cannot be negative." );
   }
 
-  if ( tau_syn_ex <= 0 || tau_syn_in <= 0 || tau_w <= 0 || tau_V_th <= 0 || tau_z <= 0 || tau_plus <= 0 || tau_minus <= 0 || tau_bar_bar <= 0)
+  if ( tau_syn_ex <= 0 || tau_syn_in <= 0 || tau_w <= 0 || tau_V_th <= 0 || tau_plus <= 0 || tau_minus <= 0 || tau_bar_bar <= 0)
   {
     throw BadProperty( "All time constants must be strictly positive." );
   }
@@ -566,7 +558,6 @@ nest::aeif_cond_alpha_clopath::update( Time const& origin, const long from, cons
       {
         S_.y_[ State_::V_M ] = P_.V_reset_;
         S_.y_[ State_::W ] += P_.b; // spike-driven adaptation
-        S_.y_[ State_::Z ] = P_.I_sp; // depolarizing spike afterpotential current
         S_.y_[ State_::V_TH ] = P_.V_th_max;
 
         /* Initialize refractory step counter.
