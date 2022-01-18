@@ -136,12 +136,11 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
 
   f[ S::V_TH ] = -( V_th - node.P_.V_th_rest ) / node.P_.tau_V_th;
 
-  //TODO where do these equations come from?
+  //low-pass filtered versions of V; u_bar_minus:= u and u_bar_plus:= v where u, v in Maes et al. (2020)
   f[ S::U_BAR_PLUS ] = ( -u_bar_plus + V ) / node.P_.tau_plus;
-
   f[ S::U_BAR_MINUS ] = ( -u_bar_minus + V ) / node.P_.tau_minus;
 
-  //TODO do I need U_BAR_BAR?
+  //TODO the variable is needed to call writeClopathhistory() but if A_LTD_const=true it won't be considered
   f[ S::U_BAR_BAR ] = ( -u_bar_bar + u_bar_minus ) / node.P_.tau_bar_bar;
 
   return GSL_SUCCESS;
@@ -151,29 +150,34 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
 /* ----------------------------------------------------------------
  * Default constructors defining default parameters and state
  * ---------------------------------------------------------------- */
+// the default values were taken from Maes et al. (2020)
+#define LOCAL_V_th_rest -52.0                   // mV
+#define LOCAL_C_m 300.0                         // pF
+#define LOCAL_tau_E 20.0                        // ms ----- membrane potential time constant
+#define LOCAL_A_th 10.0                         // mV ----- Adaptive threshold increase constant
 
 nest::aeif_cond_alpha_clopath::Parameters_::Parameters_()
-  : V_peak_( 20.0 )                   // mV
-  , V_reset_( -60.0 )                 // mV 
-  , t_ref_( 5.0 )                     // ms
-  , C_m( 300.0 )                      // pF
-  , g_L( C_m / 20.0 )                 // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
-  , E_ex( 0.0 )                       // mV 
-  , E_in( -75.0 )                     // mV
-  , E_L( -70.0 )                      // mV
-  , Delta_T( 2.0 )                    // mV 
-  , tau_w( 100.0 )                    // ms
-  , tau_V_th( 30.0 )                  // ms
-  , V_th_rest( -52.0 )                // mV
-  , V_th_max( V_th_rest + 10.0 )      // mV ------ V_th_max = V_th_rest + A_T where A_T the adaptive threshold increase constant is
-  , tau_plus( 7.0 )                   // ms ----- TODO
-  , tau_minus( 10.0 )                 // ms ----- TODO
-  , tau_bar_bar( 500.0 )              // ms
-  , a( 0.0 )                          // nS 
-  , b( 1000.0 )                       // pA
-  , tau_syn_ex( 0.2 )                 // ms ----- TODO
-  , tau_syn_in( 2.0 )                 // ms ----- TODO
-  , I_e( 0.0 )                        // pA ----- set to zero since it is probably not needed
+  : V_peak_( 20.0 )                             // mV
+  , V_reset_( -60.0 )                           // mV 
+  , t_ref_( 5.0 )                               // ms
+  , g_L( LOCAL_C_m / LOCAL_tau_E )              // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
+  , C_m( LOCAL_C_m )                            // pF
+  , E_ex( 0.0 )                                 // mV 
+  , E_in( -75.0 )                               // mV
+  , E_L( -70.0 )                                // mV
+  , Delta_T( 2.0 )                              // mV 
+  , tau_w( 100.0 )                              // ms
+  , tau_V_th( 30.0 )                            // ms
+  , V_th_max( LOCAL_V_th_rest + LOCAL_A_th )    // mV ----- V_th_max = V_th_rest + A_T where A_T the adaptive threshold increase constant is
+  , V_th_rest( LOCAL_V_th_rest )                // mV
+  , tau_plus( 7.0 )                             // ms 
+  , tau_minus( 10.0 )                           // ms
+  , tau_bar_bar( 500.0 )                        // ms ----- TODO
+  , a( 0.0 )                                    // nS 
+  , b( 1000.0 )                                 // pA
+  , tau_syn_ex( 0.2 )                           // ms ----- TODO
+  , tau_syn_in( 2.0 )                           // ms ----- TODO
+  , I_e( 0.0 )                                  // pA ----- set to zero since it is probably not needed
   , gsl_error_tol( 1e-6 ) 
 {
 }
