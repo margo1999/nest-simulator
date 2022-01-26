@@ -224,8 +224,8 @@ class ClopathNeuronTestCase(unittest.TestCase):
         exc_conns_targets = np.array(nrns_conns.target)
         exc_conns_weights = np.array(nrns_conns.weight)
 
-        # t_log = nest.GetStatus(wr, "events")[0]["times"]
-        # w_log = nest.GetStatus(wr, "events")[0]["weights"]
+        wr_times = nest.GetStatus(wr, "events")[0]["times"]
+        wr_weights = nest.GetStatus(wr, "events")[0]["weights"]
 
         weight_matrix = np.zeros((2, 2))
         weight_matrix[exc_conns_senders-1, exc_conns_targets-1] = exc_conns_weights
@@ -266,18 +266,24 @@ class ClopathNeuronTestCase(unittest.TestCase):
         axis[1, 0].set_ylabel('adaption current [pA]')
         axis[1, 0].legend()
 
-        axis[1, 1].imshow(weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
-        axis[1, 1].set_xticks([1, 2])
-        axis[1, 1].set_yticks([1, 2])
-        axis[1, 1].set_title('weight matrix')
-        axis[1, 1].set_xlabel('target [neuron id]')
-        axis[1, 1].set_ylabel('sender [neuron id]')
-        axis[1, 1].grid(False)
+        # axis[1, 1].imshow(weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
+        # axis[1, 1].set_xticks([1, 2])
+        # axis[1, 1].set_yticks([1, 2])
+        # axis[1, 1].set_title('weight matrix')
+        # axis[1, 1].set_xlabel('target [neuron id]')
+        # axis[1, 1].set_ylabel('sender [neuron id]')
+        # axis[1, 1].grid(False)
+
+        axis[1, 1].plot(wr_times, wr_weights)
+        axis[1, 1].set_xlim(*axis[0, 0].get_xlim())
+        axis[1, 1].set_title('weight change')
+        axis[1, 1].set_xlabel('time [ms]')
+        axis[1, 1].set_ylabel('weight [pF?]')
 
         axis[1, 2].imshow(diff_weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
         axis[1, 2].set_xticks([1, 2])
         axis[1, 2].set_yticks([1, 2])
-        axis[1, 2].set_title('weight change')
+        axis[1, 2].set_title('matrix of weight change')
         axis[1, 2].set_xlabel('target [neuron id]')
         axis[1, 2].set_ylabel('sender [neuron id]')
         axis[1, 2].grid(False)
@@ -424,4 +430,10 @@ if __name__ == "__main__":
     #print(nest.GetDefaults('clopath_synapse'))
     #print(nest.GetDefaults('aeif_psc_delta', keys='tau_minus_inv'))
     #print(nest.GetDefaults('aeif_psc_delta', keys='tau_minus'))
-    #print(nest.GetDefaults('aeif_cond_alpha_clopath', keys='a'))
+    #nest.ResetKernel()
+    #nest.SetDefaults('aeif_cond_alpha_clopath', {'tau_minus': 4.0})
+    #print(nest.GetDefaults('aeif_cond_alpha_clopath', keys='tau_minus'))
+    #n = nest.Create('aeif_cond_alpha_clopath')
+    #sg = nest.Create('spike_generator', 1, {'spike_times':[10.0,13.0]})
+    #nest.Connect(sg, n, syn_spec={'weight':300.0})
+    #nest.Simulate(1000.0)
