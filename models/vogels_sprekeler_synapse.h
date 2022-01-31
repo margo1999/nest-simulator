@@ -60,6 +60,7 @@ Parameters
 ======  ======  =========================================================
  tau    ms      Time constant of STDP window, potentiation
  Wmax   real    Maximum allowed weight
+ Wmin   real    Minimum allowed weight
  eta    real    Learning rate
  alpha  real    Constant depression (= 2 * tau * target firing rate in
                 [1]_)
@@ -175,7 +176,7 @@ private:
   depress_( double w )
   {
     double new_w = std::abs( w ) - ( alpha_ * eta_ );
-    return copysign( new_w > 0.0 ? new_w : 0.0, Wmax_ );
+    return copysign( new_w > std::abs( Wmin_ ) ? new_w : Wmin_, Wmax_ );
   }
 
   // data members of each connection
@@ -184,6 +185,7 @@ private:
   double alpha_;
   double eta_;
   double Wmax_;
+  double Wmin_;
   double Kplus_;
 
   double t_lastspike_;
@@ -260,6 +262,7 @@ vogels_sprekeler_synapse< targetidentifierT >::vogels_sprekeler_synapse()
   , alpha_( 0.12 )
   , eta_( 0.001 )
   , Wmax_( 1.0 )
+  , Wmin_(0.0)
   , Kplus_( 0.0 )
   , t_lastspike_( 0.0 )
 {
@@ -275,6 +278,7 @@ vogels_sprekeler_synapse< targetidentifierT >::get_status( DictionaryDatum& d ) 
   def< double >( d, names::alpha, alpha_ );
   def< double >( d, names::eta, eta_ );
   def< double >( d, names::Wmax, Wmax_ );
+  def< double >( d, names::Wmin, Wmin_ );
   def< double >( d, names::Kplus, Kplus_ );
   def< long >( d, names::size_of, sizeof( *this ) );
 }
@@ -289,6 +293,7 @@ vogels_sprekeler_synapse< targetidentifierT >::set_status( const DictionaryDatum
   updateValue< double >( d, names::alpha, alpha_ );
   updateValue< double >( d, names::eta, eta_ );
   updateValue< double >( d, names::Wmax, Wmax_ );
+  updateValue< double >( d, names::Wmin, Wmin_ );
   updateValue< double >( d, names::Kplus, Kplus_ );
 
   // if the weight_ is not 0, we check to ensure that weight_ and Wmax_ are of
@@ -296,6 +301,11 @@ vogels_sprekeler_synapse< targetidentifierT >::set_status( const DictionaryDatum
   if ( weight_ != 0 and ( std::signbit( weight_ ) != std::signbit( Wmax_ ) ) )
   {
     throw BadProperty( "Weight and Wmax must have same sign." );
+  }
+
+  if ( weight_ != 0 and ( std::signbit( weight_ ) != std::signbit( Wmin_ ) ) )
+  {
+    throw BadProperty( "Weight and Wmin must have same sign." );
   }
 
   if ( not( Kplus_ >= 0 ) )
