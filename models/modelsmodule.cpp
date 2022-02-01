@@ -31,6 +31,7 @@
 // Neuron models
 #include "aeif_cond_alpha.h"
 #include "aeif_cond_alpha_clopath.h"
+#include "aeif_cond_diff_exp_clopath.h"
 #include "aeif_cond_alpha_multisynapse.h"
 #include "aeif_cond_beta_multisynapse.h"
 #include "aeif_cond_exp.h"
@@ -286,6 +287,7 @@ ModelsModule::init( SLIInterpreter* )
 
   kernel().model_manager.register_node_model< aeif_psc_delta_clopath >( "aeif_psc_delta_clopath" );
   kernel().model_manager.register_node_model< aeif_cond_alpha_clopath >( "aeif_cond_alpha_clopath" );
+  kernel().model_manager.register_node_model< aeif_cond_diff_exp_clopath >( "aeif_cond_diff_exp_clopath" );
   kernel().model_manager.register_node_model< aeif_cond_alpha >( "aeif_cond_alpha" );
   kernel().model_manager.register_node_model< aeif_cond_exp >( "aeif_cond_exp" );
   kernel().model_manager.register_node_model< aeif_psc_alpha >( "aeif_psc_alpha" );
