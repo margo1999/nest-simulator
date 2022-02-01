@@ -114,20 +114,23 @@ Act_n       real    Activation variable n
 I_e         pA      External input current
 =========== ======  ===========================================================
 
-============= ======= =======================================================
+=================== ======= =======================================================
 **Clopath rule parameters**
 -----------------------------------------------------------------------------
-A_LTD         1/mV    Amplitude of depression
-A_LTP         1/mV^2  Amplitude of facilitation
-theta_plus    mV      Threshold for u
-theta_minus   mV      Threshold for u_bar_[plus/minus]
-A_LTD_const   boolean Flag that indicates whether `A_LTD_` should
-                      be constant (true, default) or multiplied by
-                      u_bar_bar^2 / u_ref_squared (false).
-delay_u_bars  real    Delay with which u_bar_[plus/minus] are processed
-                      to compute the synaptic weights.
-U_ref_squared real    Reference value for u_bar_bar_^2.
-============= ======= =======================================================
+A_LTD               1/mV    Amplitude of depression
+A_LTP               1/mV^2  Amplitude of facilitation
+theta_plus          mV      Threshold for u
+theta_minus         mV      Threshold for u_bar_[plus/minus]
+A_LTD_const         boolean Flag that indicates whether `A_LTD_` should
+                            be constant (true, default) or multiplied by
+                            u_bar_bar^2 / u_ref_squared (false).
+delay_u_bars        real    Delay with which u_bar_[plus/minus] are processed
+                            to compute the synaptic weights.
+U_ref_squared       real    Reference value for u_bar_bar_^2.
+tau_u_bar_plus      ms      Time constant of u_bar_plus
+tau_u_bar_minus     ms      Time constant of u_bar_minus
+tau_u_bar_bar       ms      Time constant of u_bar_bar
+=================== ======= =======================================================
 
 
 Problems/Todo
@@ -229,20 +232,20 @@ private:
   //! Independent parameters
   struct Parameters_
   {
-    double t_ref_;      //!< refractory time in ms
-    double g_Na;        //!< Sodium Conductance in nS
-    double g_K;         //!< Potassium Conductance in nS
-    double g_L;         //!< Leak Conductance in nS
-    double C_m;         //!< Membrane Capacitance in pF
-    double E_Na;        //!< Sodium Reversal Potential in mV
-    double E_K;         //!< Potassium Reversal Potential in mV
-    double E_L;         //!< Leak reversal Potential (aka resting potential) in mV
-    double tau_synE;    //!< Synaptic Time Constant Excitatory Synapse in ms
-    double tau_synI;    //!< Synaptic Time Constant for Inhibitory Synapse in ms
-    double I_e;         //!< Constant Current in pA
-    double tau_plus;    //!< time constant of u_bar_plus in ms
-    double tau_minus;   //!< time constant of u_bar_minus in ms
-    double tau_bar_bar; //!< time constant of u_bar_bar in ms
+    double t_ref_;            //!< refractory time in ms
+    double g_Na;              //!< Sodium Conductance in nS
+    double g_K;               //!< Potassium Conductance in nS
+    double g_L;               //!< Leak Conductance in nS
+    double C_m;               //!< Membrane Capacitance in pF
+    double E_Na;              //!< Sodium Reversal Potential in mV
+    double E_K;               //!< Potassium Reversal Potential in mV
+    double E_L;               //!< Leak reversal Potential (aka resting potential) in mV
+    double tau_synE;          //!< Synaptic Time Constant Excitatory Synapse in ms
+    double tau_synI;          //!< Synaptic Time Constant for Inhibitory Synapse in ms
+    double I_e;               //!< Constant Current in pA
+    double tau_u_bar_plus;    //!< time constant of u_bar_plus in ms
+    double tau_u_bar_minus;   //!< time constant of u_bar_minus in ms
+    double tau_u_bar_bar;     //!< time constant of u_bar_bar in ms
 
     Parameters_(); //!< Sets default parameter values
 

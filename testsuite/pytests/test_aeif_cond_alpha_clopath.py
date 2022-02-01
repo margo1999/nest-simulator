@@ -37,9 +37,9 @@ class ClopathNeuronTestCase(unittest.TestCase):
                             'tau_V_th': 30.0,           
                             'V_th_rest': -52.0,            
                             'V_th_max': (-52.0 + 10.0),
-                            'tau_plus': 7.0,              
-                            'tau_minus': 10.0,            
-                            'tau_bar_bar': 500.0,       
+                            'tau_u_bar_plus': 7.0,              
+                            'tau_u_bar_minus': 10.0,            
+                            'tau_u_bar_bar': 500.0,       
                             'a': 0.0,                       
                             'b': 1000.0,                
                             'tau_syn_ex': 0.2,            
@@ -71,9 +71,9 @@ class ClopathNeuronTestCase(unittest.TestCase):
                             'tau_V_th': 32.0,           
                             'V_th_rest': -54.0,            
                             'V_th_max': (-54.0 + 12.0),
-                            'tau_plus': 8.0,              
-                            'tau_minus': 12.0,            
-                            'tau_bar_bar': 502.0,       
+                            'tau_u_bar_plus': 8.0,              
+                            'tau_u_bar_minus': 12.0,            
+                            'tau_u_bar_bar': 502.0,       
                             'a': 2.0,                       
                             'b': 1002.0,                
                             'tau_syn_ex': 2.2,            
@@ -188,7 +188,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         nrns = nest.Create('aeif_cond_alpha_clopath', 2)
         #nrns = nest.Create('aeif_cond_alpha', 2)
 
-        spike_times = [10.0, 20.0, 30.0, 40.0]#[float(i) for i in range(10, 25)]
+        spike_times = [float(i) for i in range(10, 30)] #[10.0, 20.0, 30.0, 40.0]#
         sg = nest.Create('spike_generator', 1, {'spike_times': spike_times})
 
         # Create all necessary recorders
@@ -198,13 +198,14 @@ class ClopathNeuronTestCase(unittest.TestCase):
         wr = nest.Create('weight_recorder')
 
         nest.CopyModel('clopath_synapse', 'clopath_synapse_wr',
-                       {"weight_recorder": wr, "weight": 1.})
+                       {"weight_recorder": wr, "weight": 30.0, "Wmax": 40.0, "Wmin":10.0})
         #nest.CopyModel('static_synapse', 'static_synapse_wr',
         #               {"weight_recorder": wr, "weight": 1.})
 
         # Connect all nodes
-        nest.Connect(nrns, nrns, syn_spec='clopath_synapse_wr')
+        nest.Connect(nrns[0], nrns[1], syn_spec='clopath_synapse_wr')
         nest.Connect(sg, nrns[0], syn_spec={'weight':500.0})
+        nest.Connect(sg, nrns[1], syn_spec={'weight':30.0})
         nest.Connect(mm[0], nrns[0])
         nest.Connect(mm[1], nrns[1])
         nest.Connect(nrns, sr)
@@ -331,8 +332,8 @@ class ClopathNeuronTestCase(unittest.TestCase):
     #                           'theta_plus': -45.3,
     #                           'A_LTD': 14.0e-5,
     #                           'A_LTP': 8.0e-5,
-    #                           'tau_minus': 10.0,
-    #                           'tau_plus': 7.0,
+    #                           'tau_u_bar_minus': 10.0,
+    #                           'tau_u_bar_plus': 7.0,
     #                           'delay_u_bars': 4.0,
     #                           'a': 4.0,
     #                           'b': 0.0805,
@@ -349,8 +350,8 @@ class ClopathNeuronTestCase(unittest.TestCase):
     #                           'theta_plus': -35.0,
     #                           'A_LTD': 14.0e-5,
     #                           'A_LTP': 8.0e-5,
-    #                           'tau_minus': 10.0,
-    #                           'tau_plus': 114.0,
+    #                           'tau_u_bar_minus': 10.0,
+    #                           'tau_u_bar_plus': 114.0,
     #                           'delay_u_bars': 5.0,
     #                           }
     #         syn_weights = []

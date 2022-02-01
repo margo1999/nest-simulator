@@ -137,11 +137,11 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
   f[ S::V_TH ] = -( V_th - node.P_.V_th_rest ) / node.P_.tau_V_th;
 
   //low-pass filtered versions of V; u_bar_minus:= u and u_bar_plus:= v where u, v in Maes et al. (2020)
-  f[ S::U_BAR_PLUS ] = ( -u_bar_plus + V ) / node.P_.tau_plus;
-  f[ S::U_BAR_MINUS ] = ( -u_bar_minus + V ) / node.P_.tau_minus;
+  f[ S::U_BAR_PLUS ] = ( -u_bar_plus + V ) / node.P_.tau_u_bar_plus;
+  f[ S::U_BAR_MINUS ] = ( -u_bar_minus + V ) / node.P_.tau_u_bar_minus;
 
   //TODO the variable is needed to call writeClopathhistory() but if A_LTD_const=true it won't be considered
-  f[ S::U_BAR_BAR ] = ( -u_bar_bar + u_bar_minus ) / node.P_.tau_bar_bar;
+  f[ S::U_BAR_BAR ] = ( -u_bar_bar + u_bar_minus ) / node.P_.tau_u_bar_bar;
 
   return GSL_SUCCESS;
 }
@@ -157,27 +157,27 @@ nest::aeif_cond_alpha_clopath_dynamics( double, const double y[], double f[], vo
 #define LOCAL_A_th 10.0                         // mV ----- Adaptive threshold increase constant
 
 nest::aeif_cond_alpha_clopath::Parameters_::Parameters_()
-  : V_peak_( 20.0 )                             // mV
-  , V_reset_( -60.0 )                           // mV 
-  , t_ref_( 5.0 )                               // ms
-  , g_L( LOCAL_C_m / LOCAL_tau_E )              // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
-  , C_m( LOCAL_C_m )                            // pF
-  , E_ex( 0.0 )                                 // mV 
-  , E_in( -75.0 )                               // mV
-  , E_L( -70.0 )                                // mV
-  , Delta_T( 2.0 )                              // mV 
-  , tau_w( 100.0 )                              // ms
-  , tau_V_th( 30.0 )                            // ms
-  , V_th_max( LOCAL_V_th_rest + LOCAL_A_th )    // mV ----- V_th_max = V_th_rest + A_T where A_T the adaptive threshold increase constant is
-  , V_th_rest( LOCAL_V_th_rest )                // mV
-  , tau_plus( 7.0 )                             // ms 
-  , tau_minus( 10.0 )                           // ms
-  , tau_bar_bar( 500.0 )                        // ms ----- TODO
-  , a( 0.0 )                                    // nS 
-  , b( 1000.0 )                                 // pA
-  , tau_syn_ex( 0.2 )                           // ms ----- TODO
-  , tau_syn_in( 2.0 )                           // ms ----- TODO
-  , I_e( 0.0 )                                  // pA ----- set to zero since it is probably not needed
+  : V_peak_( 20.0 )                                   // mV
+  , V_reset_( -60.0 )                                 // mV 
+  , t_ref_( 5.0 )                                     // ms
+  , g_L( LOCAL_C_m / LOCAL_tau_E )                    // nS ----- g_L = C_m / tau_E where tau_E the membrane potential time constant is
+  , C_m( LOCAL_C_m )                                  // pF
+  , E_ex( 0.0 )                                       // mV 
+  , E_in( -75.0 )                                     // mV
+  , E_L( -70.0 )                                      // mV
+  , Delta_T( 2.0 )                                    // mV 
+  , tau_w( 100.0 )                                    // ms
+  , tau_V_th( 30.0 )                                  // ms
+  , V_th_max( LOCAL_V_th_rest + LOCAL_A_th )          // mV ----- V_th_max = V_th_rest + A_T where A_T the adaptive threshold increase constant is
+  , V_th_rest( LOCAL_V_th_rest )                      // mV
+  , tau_u_bar_plus( 7.0 )                             // ms 
+  , tau_u_bar_minus( 10.0 )                           // ms
+  , tau_u_bar_bar( 500.0 )                            // ms ----- TODO
+  , a( 0.0 )                                          // nS 
+  , b( 1000.0 )                                       // pA
+  , tau_syn_ex( 0.2 )                                 // ms ----- TODO
+  , tau_syn_in( 2.0 )                                 // ms ----- TODO
+  , I_e( 0.0 )                                        // pA ----- set to zero since it is probably not needed
   , gsl_error_tol( 1e-6 ) 
 {
 }
@@ -238,9 +238,9 @@ nest::aeif_cond_alpha_clopath::Parameters_::get( DictionaryDatum& d ) const
   def< double >( d, names::b, b );
   def< double >( d, names::Delta_T, Delta_T );
   def< double >( d, names::tau_w, tau_w );
-  def< double >( d, names::tau_plus, tau_plus );
-  def< double >( d, names::tau_minus, tau_minus );
-  def< double >( d, names::tau_bar_bar, tau_bar_bar );
+  def< double >( d, names::tau_u_bar_plus, tau_u_bar_plus );
+  def< double >( d, names::tau_u_bar_minus, tau_u_bar_minus );
+  def< double >( d, names::tau_u_bar_bar, tau_u_bar_bar );
   def< double >( d, names::I_e, I_e );
   def< double >( d, names::V_peak, V_peak_ );
   def< double >( d, names::gsl_error_tol, gsl_error_tol );
@@ -269,9 +269,9 @@ nest::aeif_cond_alpha_clopath::Parameters_::set( const DictionaryDatum& d, Node*
   updateValueParam< double >( d, names::b, b, node );
   updateValueParam< double >( d, names::Delta_T, Delta_T, node );
   updateValueParam< double >( d, names::tau_w, tau_w, node );
-  updateValueParam< double >( d, names::tau_plus, tau_plus, node );
-  updateValueParam< double >( d, names::tau_minus, tau_minus, node );
-  updateValueParam< double >( d, names::tau_bar_bar, tau_bar_bar, node );
+  updateValueParam< double >( d, names::tau_u_bar_plus, tau_u_bar_plus, node );
+  updateValueParam< double >( d, names::tau_u_bar_minus, tau_u_bar_minus, node );
+  updateValueParam< double >( d, names::tau_u_bar_bar, tau_u_bar_bar, node );
 
   updateValueParam< double >( d, names::I_e, I_e, node );
 
@@ -321,7 +321,7 @@ nest::aeif_cond_alpha_clopath::Parameters_::set( const DictionaryDatum& d, Node*
     throw BadProperty( "Refractory time cannot be negative." );
   }
 
-  if ( tau_syn_ex <= 0 || tau_syn_in <= 0 || tau_w <= 0 || tau_V_th <= 0 || tau_plus <= 0 || tau_minus <= 0 || tau_bar_bar <= 0)
+  if ( tau_syn_ex <= 0 || tau_syn_in <= 0 || tau_w <= 0 || tau_V_th <= 0 || tau_u_bar_plus <= 0 || tau_u_bar_minus <= 0 || tau_u_bar_bar <= 0)
   {
     throw BadProperty( "All time constants must be strictly positive." );
   }
