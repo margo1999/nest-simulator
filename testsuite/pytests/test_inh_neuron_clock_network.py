@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_clopath_aief_cond_alpha.py
+# test_inh_neuron_clock_network.py
 #
 # This file is part of NEST.
 #

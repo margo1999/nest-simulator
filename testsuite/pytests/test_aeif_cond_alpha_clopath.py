@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# test_clopath_aief_cond_alpha.py
+# test_aeif_cond_alpha_clopath.py
 #
 # This file is part of NEST.
 #
