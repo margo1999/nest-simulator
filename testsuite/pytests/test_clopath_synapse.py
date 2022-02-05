@@ -44,6 +44,8 @@ class ClopathSynapseTestCase(unittest.TestCase):
         supported_models = [
             'aeif_psc_delta_clopath',
             'hh_psc_alpha_clopath',
+            'aeif_cond_alpha_clopath',
+            'aeif_cond_diff_exp_clopath'
         ]
 
         # Connect supported models with Clopath synapse
