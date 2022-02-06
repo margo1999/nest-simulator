@@ -39,73 +39,70 @@ class ClopathNeuronTestCase(unittest.TestCase):
     def test_ModifyParameters(self):
         """Ensures that the parameter dictionary is set correctly and can be modified."""
 
-        default_params = {'V_peak':  20.0,                
-                            'V_reset': -60.0,                
-                            't_ref': 5.0,
-                            'C_m': 300.0,                     
-                            'g_L': (300.0 / 20.0 ),
-                            'E_ex': 0.0,                        
-                            'E_in': -75.0,                     
-                            'E_L': -70.0,                      
-                            'Delta_T': 2.0,              
-                            'tau_w': 100.0,             
-                            'tau_V_th': 30.0,           
-                            'V_th_rest': -52.0,            
-                            'V_th_max': (-52.0 + 10.0),
-                            'tau_u_bar_plus': 7.0,              
-                            'tau_u_bar_minus': 10.0,            
-                            'tau_u_bar_bar': 500.0,       
-                            'a': 0.0,                       
-                            'b': 1000.0,                
-                            'tau_syn_ex': 0.2,            
-                            'tau_syn_in': 2.0,            
-                            'I_e': 0.0,
-        }
+        default_params = {'V_peak': 20.0,
+                          'V_reset': -60.0,
+                          't_ref': 5.0,
+                          'C_m': 300.0,
+                          'g_L': (300.0 / 20.0),
+                          'E_ex': 0.0,
+                          'E_in': -75.0,
+                          'E_L': -70.0,
+                          'Delta_T': 2.0,
+                          'tau_w': 100.0,
+                          'tau_V_th': 30.0,
+                          'V_th_rest': -52.0,
+                          'V_th_max': (-52.0 + 10.0),
+                          'tau_u_bar_plus': 7.0,
+                          'tau_u_bar_minus': 10.0,
+                          'tau_u_bar_bar': 500.0,
+                          'a': 0.0,
+                          'b': 1000.0,
+                          'tau_syn_ex': 0.2,
+                          'tau_syn_in': 2.0,
+                          'I_e': 0.0,
+                          }
 
         for param, value in default_params.items():
             # if-query for debug purposes
-            default_value = nest.GetDefaults('aeif_cond_alpha_clopath',keys=param)
+            default_value = nest.GetDefaults('aeif_cond_alpha_clopath', keys=param)
             if value != default_value:
                 print(f'{param=}', f'{value=}', f'{default_value=}',)
-            
-            # TODO there is something wrong with tau_minus (param='tau_minus' value=10.0 default_value=20.0), needs to get fixed, COMMENT: aief_psc_delta_clopath and hh_psc_alpha_clopath
-            # have the same problem-> default value is set and used correctly in all models only getDefault() doesn't work correctly
-            if param != 'tau_minus':    
-                self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath',keys=param))
 
-        new_params = {'V_peak':  22.0,                
-                            'V_reset': -62.0,                
-                            't_ref': 2.0,
-                            'C_m': 302.0,                     
-                            'g_L': (302.0 / 22.0 ),
-                            'E_ex': 2.0,                        
-                            'E_in': -72.0,                     
-                            'E_L': -72.0,                      
-                            'Delta_T': 3.0,              
-                            'tau_w': 102.0,             
-                            'tau_V_th': 32.0,           
-                            'V_th_rest': -54.0,            
-                            'V_th_max': (-54.0 + 12.0),
-                            'tau_u_bar_plus': 8.0,              
-                            'tau_u_bar_minus': 12.0,            
-                            'tau_u_bar_bar': 502.0,       
-                            'a': 2.0,                       
-                            'b': 1002.0,                
-                            'tau_syn_ex': 2.2,            
-                            'tau_syn_in': 4.0,            
-                            'I_e': 2.0,
-        }
+            self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath', keys=param))
+
+        new_params = {'V_peak': 22.0,
+                      'V_reset': -62.0,
+                      't_ref': 2.0,
+                      'C_m': 302.0,
+                      'g_L': (302.0 / 22.0),
+                      'E_ex': 2.0,
+                      'E_in': -72.0,
+                      'E_L': -72.0,
+                      'Delta_T': 3.0,
+                      'tau_w': 102.0,
+                      'tau_V_th': 32.0,
+                      'V_th_rest': -54.0,
+                      'V_th_max': (-54.0 + 12.0),
+                      'tau_u_bar_plus': 8.0,
+                      'tau_u_bar_minus': 12.0,
+                      'tau_u_bar_bar': 502.0,
+                      'a': 2.0,
+                      'b': 1002.0,
+                      'tau_syn_ex': 2.2,
+                      'tau_syn_in': 4.0,
+                      'I_e': 2.0,
+                      }
 
         nest.SetDefaults('aeif_cond_alpha_clopath', new_params)
 
         for param, value in new_params.items():
-            self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath',keys=param))
-        
+            self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath', keys=param))
+
         nest.ResetKernel()
 
         for param, value in default_params.items():
-            if param != 'tau_minus':    
-                self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath',keys=param))
+            if param != 'tau_minus':
+                self.assertTrue(value == nest.GetDefaults('aeif_cond_alpha_clopath', keys=param))
 
     def test_ConnectClopathNeuronsWithClopathSynapse(self):
         """Ensures that the restriction to supported neuron models works."""
@@ -116,7 +113,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         supported_models = [
             'aeif_psc_delta_clopath',
             'aeif_cond_alpha_clopath',
-            'hh_psc_alpha_clopath', 
+            'hh_psc_alpha_clopath',
             'aeif_cond_diff_exp_clopath'
         ]
 
@@ -191,20 +188,20 @@ class ClopathNeuronTestCase(unittest.TestCase):
         # Check that a spike with weight 2.0 is processes properly
         # in the aeif_psc_delta_clopath model
         # TODO This test does always fail? Why and what does it even mean?
-        print(vm2[11]-vm2[10])
-        #self.assertTrue(np.isclose(vm2[11]-vm2[10], 2.0, rtol=1e-5))
+        print(vm2[11] - vm2[10])
+        # self.assertTrue(np.isclose(vm2[11]-vm2[10], 2.0, rtol=1e-5))
 
     def test_AnalyseBehaviourByPlotting(self):
         nest.set_verbosity('M_WARNING')
         nest.ResetKernel()
         nest.resolution = 0.01
 
-        #nest.SetDefaults('aeif_cond_alpha_clopath', {'b': 0.0})
+        # nest.SetDefaults('aeif_cond_alpha_clopath', {'b': 0.0})
         # Create neuron and spike generator
         nrns = nest.Create('aeif_cond_alpha_clopath', 2)
-        #nrns = nest.Create('aeif_cond_alpha', 2)
+        # nrns = nest.Create('aeif_cond_alpha', 2)
 
-        spike_times = [float(i) for i in range(10, 30)] #[10.0, 20.0, 30.0, 40.0]#
+        spike_times = [float(i) for i in range(10, 30)]  # [10.0, 20.0, 30.0, 40.0]#
         sg = nest.Create('spike_generator', 1, {'spike_times': spike_times})
 
         # Create all necessary recorders
@@ -214,14 +211,14 @@ class ClopathNeuronTestCase(unittest.TestCase):
         wr = nest.Create('weight_recorder')
 
         nest.CopyModel('clopath_synapse', 'clopath_synapse_wr',
-                       {"weight_recorder": wr, "weight": 30.0, "Wmax": 40.0, "Wmin":10.0})
-        #nest.CopyModel('static_synapse', 'static_synapse_wr',
+                       {"weight_recorder": wr, "weight": 30.0, "Wmax": 40.0, "Wmin": 10.0})
+        # nest.CopyModel('static_synapse', 'static_synapse_wr',
         #               {"weight_recorder": wr, "weight": 1.})
 
         # Connect all nodes
         nest.Connect(nrns[0], nrns[1], syn_spec='clopath_synapse_wr')
-        nest.Connect(sg, nrns[0], syn_spec={'weight':500.0})
-        nest.Connect(sg, nrns[1], syn_spec={'weight':30.0})
+        nest.Connect(sg, nrns[0], syn_spec={'weight': 500.0})
+        nest.Connect(sg, nrns[1], syn_spec={'weight': 30.0})
         nest.Connect(mm[0], nrns[0])
         nest.Connect(mm[1], nrns[1])
         nest.Connect(nrns, sr)
@@ -234,7 +231,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         events_nrn2 = nest.GetStatus(mm[1])[0]['events']
         time_nrn2 = events_nrn2['times']
 
-        # TODO make init_weight generalized -> use nest.GetConnections before simulation 
+        # TODO make init_weight generalized -> use nest.GetConnections before simulation
         init_weight = nest.GetDefaults('clopath_synapse', keys='weight')
         nrns_conns = nest.GetConnections(nrns, nrns)
         exc_conns_senders = np.array(nrns_conns.source)
@@ -245,7 +242,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         wr_weights = nest.GetStatus(wr, "events")[0]["weights"]
 
         weight_matrix = np.zeros((2, 2))
-        weight_matrix[exc_conns_senders-1, exc_conns_targets-1] = exc_conns_weights
+        weight_matrix[exc_conns_senders - 1, exc_conns_targets - 1] = exc_conns_weights
         diff_weight_matrix = weight_matrix - init_weight
 
         spike_events = sr.events
@@ -297,20 +294,17 @@ class ClopathNeuronTestCase(unittest.TestCase):
         axis[1, 1].set_xlabel('time [ms]')
         axis[1, 1].set_ylabel('weight [pF?]')
 
-        axis[1, 2].imshow(diff_weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
+        axis[1, 2].imshow(diff_weight_matrix, extent=(0.5, 2.5, 0.5, 2.5))
         axis[1, 2].set_xticks([1, 2])
         axis[1, 2].set_yticks([1, 2])
         axis[1, 2].set_title('matrix of weight change')
         axis[1, 2].set_xlabel('target [neuron id]')
         axis[1, 2].set_ylabel('sender [neuron id]')
         axis[1, 2].grid(False)
-        
-
 
         figure.set_size_inches(17, 9)
         plt.tight_layout()
         plt.show()
-
 
     # def test_SynapseDepressionFacilitation(self):
     #     """Ensure that depression and facilitation work correctly"""
@@ -432,6 +426,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
     #         self.assertTrue(np.allclose(
     #             syn_weights, correct_weights, rtol=1e-7))
 
+
 def suite():
     suite = unittest.makeSuite(ClopathNeuronTestCase, 'test')
     return suite
@@ -444,13 +439,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-    #print(nest.GetDefaults('clopath_synapse'))
-    #print(nest.GetDefaults('aeif_psc_delta', keys='tau_minus_inv'))
-    #print(nest.GetDefaults('aeif_psc_delta', keys='tau_minus'))
-    #nest.ResetKernel()
-    #nest.SetDefaults('aeif_cond_alpha_clopath', {'tau_minus': 4.0})
-    #print(nest.GetDefaults('aeif_cond_alpha_clopath', keys='tau_minus'))
-    #n = nest.Create('aeif_cond_alpha_clopath')
-    #sg = nest.Create('spike_generator', 1, {'spike_times':[10.0,13.0]})
-    #nest.Connect(sg, n, syn_spec={'weight':300.0})
-    #nest.Simulate(1000.0)

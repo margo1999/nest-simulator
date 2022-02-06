@@ -43,19 +43,19 @@ class ClopathNeuronTestCase(unittest.TestCase):
         nest.resolution = 0.01
 
         neuron_param = {'C_m': 300.0,               # pF
-                    'E_L': -62.0,               # mV
-                    'E_ex': 0.0,                # mV
-                    'E_in': -75.0,              # mV
-                    'g_L': 300.0 / 20.0,        # nS
-                    'I_e': 0.0,                 # mV          
-                    'V_reset': -60.0,           # mV
-                    'V_th': -52.0               # mV
-                    }
+                        'E_L': -62.0,               # mV
+                        'E_ex': 0.0,                # mV
+                        'E_in': -75.0,              # mV
+                        'g_L': 300.0 / 20.0,        # nS
+                        'I_e': 0.0,                 # mV
+                        'V_reset': -60.0,           # mV
+                        'V_th': -52.0               # mV
+                        }
         nest.CopyModel('iaf_cond_alpha', 'inh_RNN_neuron', params=neuron_param)
         print(nest.GetDefaults('inh_RNN_neuron'))
         nrns = nest.Create('inh_RNN_neuron', 2)
 
-        spike_times = [10.0, 20.0, 30.0, 40.0] # [float(i) for i in range(10, 25)]
+        spike_times = [10.0, 20.0, 30.0, 40.0]  # [float(i) for i in range(10, 25)]
         sg = nest.Create('spike_generator', 1, {'spike_times': spike_times})
 
         # Create all necessary recorders
@@ -67,12 +67,13 @@ class ClopathNeuronTestCase(unittest.TestCase):
         nest.CopyModel('static_synapse', 'static_synapse_wr',
                        {"weight_recorder": wr, "weight": 1.})
 
-        #nest.CopyModel('vogel_sprekeler_synapse', 'vogel_sprekeler_synapse_wr',
+        # nest.CopyModel('vogel_sprekeler_synapse', 'vogel_sprekeler_synapse_wr',
         #               {'weight_recorder': wr, 'weight': 1.})
 
         # Connect all nodes
-        nest.Connect(nrns, nrns, conn_spec={'rule': 'all_to_all', 'allow_autapses': False}, syn_spec='static_synapse_wr')
-        nest.Connect(sg, nrns[0], syn_spec={'weight':500.0})
+        nest.Connect(nrns, nrns, conn_spec={'rule': 'all_to_all', 'allow_autapses': False},
+                     syn_spec='static_synapse_wr')
+        nest.Connect(sg, nrns[0], syn_spec={'weight': 500.0})
         nest.Connect(mm[0], nrns[0])
         nest.Connect(mm[1], nrns[1])
         nest.Connect(nrns, sr)
@@ -85,7 +86,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         events_nrn2 = nest.GetStatus(mm[1])[0]['events']
         time_nrn2 = events_nrn2['times']
 
-        # TODO make init_weight generalized -> use nest.GetConnections before simulation 
+        # TODO make init_weight generalized -> use nest.GetConnections before simulation
         init_weight = nest.GetDefaults('clopath_synapse', keys='weight')
         nrns_conns = nest.GetConnections(nrns, nrns)
         exc_conns_senders = np.array(nrns_conns.source)
@@ -96,7 +97,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         # w_log = nest.GetStatus(wr, "events")[0]["weights"]
 
         weight_matrix = np.zeros((2, 2))
-        weight_matrix[exc_conns_senders-1, exc_conns_targets-1] = exc_conns_weights
+        weight_matrix[exc_conns_senders - 1, exc_conns_targets - 1] = exc_conns_weights
         diff_weight_matrix = weight_matrix - init_weight
 
         spike_events = sr.events
@@ -134,7 +135,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
         # axis[1, 0].set_ylabel('adaption current [pA]')
         # axis[1, 0].legend()
 
-        axis[1, 1].imshow(weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
+        axis[1, 1].imshow(weight_matrix, extent=(0.5, 2.5, 0.5, 2.5))
         axis[1, 1].set_xticks([1, 2])
         axis[1, 1].set_yticks([1, 2])
         axis[1, 1].set_title('weight matrix')
@@ -142,20 +143,17 @@ class ClopathNeuronTestCase(unittest.TestCase):
         axis[1, 1].set_ylabel('sender [neuron id]')
         axis[1, 1].grid(False)
 
-        axis[1, 2].imshow(diff_weight_matrix, extent=(0.5, 2.5 , 0.5, 2.5))
+        axis[1, 2].imshow(diff_weight_matrix, extent=(0.5, 2.5, 0.5, 2.5))
         axis[1, 2].set_xticks([1, 2])
         axis[1, 2].set_yticks([1, 2])
         axis[1, 2].set_title('weight change')
         axis[1, 2].set_xlabel('target [neuron id]')
         axis[1, 2].set_ylabel('sender [neuron id]')
         axis[1, 2].grid(False)
-        
-
 
         figure.set_size_inches(17, 9)
         plt.tight_layout()
         plt.show()
-
 
     # def test_SynapseDepressionFacilitation(self):
     #     """Ensure that depression and facilitation work correctly"""
@@ -276,6 +274,7 @@ class ClopathNeuronTestCase(unittest.TestCase):
 
     #         self.assertTrue(np.allclose(
     #             syn_weights, correct_weights, rtol=1e-7))
+
 
 def suite():
     suite = unittest.makeSuite(ClopathNeuronTestCase, 'test')
