@@ -260,7 +260,7 @@ clopath_synapse< targetidentifierT >::send( Event& e, thread t, const CommonSyna
   e();
 
   // compute the trace of the presynaptic spike train
-  x_bar_ = x_bar_ * std::exp( ( t_lastspike_ - t_spike ) / tau_x_ ) + 1.0 / tau_x_;
+  x_bar_ = x_bar_ * std::exp( ( t_lastspike_ - t_spike ) / tau_x_ ) + 1.0;
 
   t_lastspike_ = t_spike;
 }

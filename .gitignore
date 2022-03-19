@@ -3,6 +3,8 @@ __pycache__/
 build/
 _build/
 install/
+install_old/
+build_old/
 reports/
 
 # compilation artefacts

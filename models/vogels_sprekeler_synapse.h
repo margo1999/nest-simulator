@@ -176,7 +176,7 @@ private:
   depress_( double w )
   {
     double new_w = std::abs( w ) - ( alpha_ * eta_ );
-    return copysign( new_w > std::abs( Wmin_ ) ? new_w : Wmin_, Wmax_ );
+    return copysign( new_w > std::abs( Wmin_ ) ? new_w : Wmin_, Wmin_ );
   }
 
   // data members of each connection
