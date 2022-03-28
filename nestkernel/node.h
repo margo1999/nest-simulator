@@ -457,6 +457,14 @@ public:
   virtual void register_stdp_connection( double, double );
 
   /**
+   * Register a clopath STDP connection
+   *
+   * @throws IllegalConnection
+   *
+   */
+  virtual void register_clopath_connection( double );
+
+  /**
    * Handle incoming spike events.
    * @param thrd Id of the calling thread.
    * @param e Event object.

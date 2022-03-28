@@ -35,6 +35,7 @@ namespace nest
 
 nest::ClopathArchivingNode::ClopathArchivingNode()
   : ArchivingNode()
+  , n_incoming_clopath_( 0 )
   , A_LTD_( 14.0e-5 )
   , A_LTP_( 8.0e-5 )
   , u_ref_squared_( 60.0 )
@@ -49,6 +50,7 @@ nest::ClopathArchivingNode::ClopathArchivingNode()
 
 nest::ClopathArchivingNode::ClopathArchivingNode( const ClopathArchivingNode& n )
   : ArchivingNode( n )
+  , n_incoming_clopath_ ( n.n_incoming_clopath_ )
   , A_LTD_( n.A_LTD_ )
   , A_LTP_( n.A_LTP_ )
   , u_ref_squared_( n.u_ref_squared_ )
@@ -59,6 +61,25 @@ nest::ClopathArchivingNode::ClopathArchivingNode( const ClopathArchivingNode& n 
   , ltd_hist_len_( n.ltd_hist_len_ )
   , ltd_hist_current_( n.ltd_hist_current_ )
 {
+}
+
+void
+nest::ClopathArchivingNode::register_clopath_connection( double t_first_read )
+{
+  // Mark all entries in the deque, which we will not read in future as read by
+  // this input input, so that we savely increment the incoming number of
+  // connections afterwards without leaving spikes in the history.
+  // For details see bug #218. MH 08-04-22
+
+  for ( std::deque< histentry_extended >::iterator runner = ltp_history_.begin();
+        runner != ltp_history_.end() and ( t_first_read - runner->t_ > -1.0 * kernel().connection_manager.get_stdp_eps() );
+        ++runner )
+  {
+    ( runner->access_counter_ )++;
+  }
+
+  n_incoming_clopath_++;
+
 }
 
 void
@@ -223,7 +244,7 @@ nest::ClopathArchivingNode::write_clopath_history( Time const& t_sp,
 void
 nest::ClopathArchivingNode::write_LTD_history( const double t_ltd_ms, double u_bar_minus, double u_bar_bar )
 {
-  if ( n_incoming_ )
+  if ( n_incoming_clopath_ )
   {
     const double dw = A_LTD_const_ ? A_LTD_ * ( u_bar_minus - theta_minus_ )
                                    : A_LTD_ * u_bar_bar * u_bar_bar * ( u_bar_minus - theta_minus_ ) / u_ref_squared_;
@@ -235,13 +256,13 @@ nest::ClopathArchivingNode::write_LTD_history( const double t_ltd_ms, double u_b
 void
 nest::ClopathArchivingNode::write_LTP_history( const double t_ltp_ms, double u, double u_bar_plus )
 {
-  if ( n_incoming_ )
+  if ( n_incoming_clopath_ )
   {
     // prune all entries from history which are no longer needed
     // except the penultimate one. we might still need it.
     while ( ltp_history_.size() > 1 )
     {
-      if ( ltp_history_.front().access_counter_ >= n_incoming_ )
+      if ( ltp_history_.front().access_counter_ >= n_incoming_clopath_ )
       {
         ltp_history_.pop_front();
       }
