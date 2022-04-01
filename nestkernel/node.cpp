@@ -216,6 +216,16 @@ Node::register_stdp_connection( double, double )
 }
 
 /**
+ * Default implementation of register_clopath_connection() just
+ * throws IllegalConnection
+ */
+void
+Node::register_clopath_connection( double )
+{
+  throw IllegalConnection( "The target node does not support clopath STDP synapses." );
+}
+
+/**
  * Default implementation of event handlers just throws
  * an UnexpectedEvent exception.
  * @see class UnexpectedEvent

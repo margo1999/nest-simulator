@@ -90,6 +90,14 @@ public:
    */
   double get_theta_minus() const;
 
+  /**
+   * Register a new incoming clopath STDP connection.
+   *
+   * t_first_read: The newly registered synapse will read the ltp and ltd history entries
+   * with t > t_first_read.
+   */
+  void register_clopath_connection( double t_first_read );
+
 protected:
   /**
    * \fn void write_LTD_history( Time const& t_sp,
@@ -123,6 +131,8 @@ protected:
 private:
   std::vector< histentry_extended > ltd_history_;
   std::deque< histentry_extended > ltp_history_;
+
+  size_t n_incoming_clopath_;
 
   double A_LTD_;
 
