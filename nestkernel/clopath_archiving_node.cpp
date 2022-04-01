@@ -50,7 +50,7 @@ nest::ClopathArchivingNode::ClopathArchivingNode()
 
 nest::ClopathArchivingNode::ClopathArchivingNode( const ClopathArchivingNode& n )
   : ArchivingNode( n )
-  , n_incoming_clopath_ ( n.n_incoming_clopath_ )
+  , n_incoming_clopath_( n.n_incoming_clopath_ )
   , A_LTD_( n.A_LTD_ )
   , A_LTP_( n.A_LTP_ )
   , u_ref_squared_( n.u_ref_squared_ )
@@ -71,8 +71,8 @@ nest::ClopathArchivingNode::register_clopath_connection( double t_first_read )
   // connections afterwards without leaving spikes in the history.
   // For details see bug #218. MH 08-04-22
 
-  for ( std::deque< histentry_extended >::iterator runner = ltp_history_.begin();
-        runner != ltp_history_.end() and ( t_first_read - runner->t_ > -1.0 * kernel().connection_manager.get_stdp_eps() );
+  for ( std::deque< histentry_extended >::iterator runner = ltp_history_.begin(); runner != ltp_history_.end()
+        and ( t_first_read - runner->t_ > -1.0 * kernel().connection_manager.get_stdp_eps() );
         ++runner )
   {
     ( runner->access_counter_ )++;
