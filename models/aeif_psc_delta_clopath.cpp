@@ -20,6 +20,9 @@
  *
  */
 
+// Uncomment the line below to activate Euler integration
+#define USE_FORWARD_EULER_INTEGRATION
+
 #include "aeif_psc_delta_clopath.h"
 
 #ifdef HAVE_GSL
@@ -46,6 +49,73 @@
 #include "dictutils.h"
 #include "doubledatum.h"
 #include "integerdatum.h"
+
+
+/* ----------------------------------------------------------------
+ * Private integration step function
+ * ---------------------------------------------------------------- */
+
+static int private_forward_euler_evolve_apply(
+  gsl_odeiv_evolve *e,
+  gsl_odeiv_control *con,
+  gsl_odeiv_step *step,
+  const gsl_odeiv_system *dydt,
+  double *t,
+  double t1,
+  double *h,
+  double *y)
+/*
+  This function has the same signature as gsl_odeiv_evolve_apply.
+
+  http://gnu.ist.utl.pt/software/gsl/manual/html_node/Evolution.html
+     This function advances the system (e, dydt) from time t and position y using the stepping function step. The new
+   time and position are stored in t and y on output. The initial step-size is taken as h, but this will be modified
+   using the control function c to achieve the appropriate error bound if necessary. The routine may make several calls
+   to step in order to determine the optimum step-size. If the step-size has been changed the value of h will be
+   modified on output. The maximum time t1 is guaranteed not to be exceeded by the time-step. On the final time-step the
+   value of t will be set to t1 exactly.
+
+    If the user-supplied functions defined in the system dydt return a status other than GSL_SUCCESS the step will be
+   aborted. In this case, t and y will be restored to their pre-step values and the error code from the user-supplied
+   function will be returned. To distinguish between error codes from the user-supplied functions and those from
+   gsl_odeiv_evolve_apply itself, any user-defined return values should be distinct from the standard GSL error codes.
+
+   The implementation of gsl_odeiv_evolve_apply is here: https://github.com/ampl/gsl/blob/master/ode-initval/evolve.c
+ */
+{
+
+  const double t0 = *t;
+  double h0 = *h;
+  double dt;
+
+  if ((t0 + h0) <= t1)
+  {
+    dt = h0;
+  }
+  else
+  {
+    dt = t1 - t0;
+  }
+
+  // Call the dynamics function of the system, which computes the derivates from values in state vector y and stores them in vector e->dydt_in
+  int status = GSL_ODEIV_FN_EVAL (dydt, t0, y, e->dydt_in);
+  // expands to : (*((dydt)->function))(t0,y,e->dydt_in,(dydt)->params)
+
+  if (status != GSL_SUCCESS)
+  {
+    // some error was returned by dynamics function
+    return status;
+  }
+
+  for (int i=0; i<dydt->dimension; i++)
+  {
+    y[i] += dt * e->dydt_in[i];
+  }
+  *t += dt;
+  
+  return GSL_SUCCESS;
+}
+
 
 /* ----------------------------------------------------------------
  * Recordables map
@@ -478,6 +548,8 @@ nest::aeif_psc_delta_clopath::update( const Time& origin, const long from, const
   assert( from < to );
   assert( State_::V_M == 0 );
 
+  //printf("update V_M=%f W=%f\n", S_.y_[ State_::V_M ], S_.y_[ State_::W ]);
+
   for ( long lag = from; lag < to; ++lag )
   {
     double t = 0.0;
@@ -494,6 +566,7 @@ nest::aeif_psc_delta_clopath::update( const Time& origin, const long from, const
     // enforce setting IntegrationStep to step-t
     while ( t < B_.step_ )
     {
+#ifndef USE_FORWARD_EULER_INTEGRATION
       const int status = gsl_odeiv_evolve_apply( B_.e_,
         B_.c_,
         B_.s_,
@@ -502,6 +575,17 @@ nest::aeif_psc_delta_clopath::update( const Time& origin, const long from, const
         B_.step_,             // to t <= step
         &B_.IntegrationStep_, // integration step size
         S_.y_ );              // neuronal state
+#else
+      const int status = private_forward_euler_evolve_apply( B_.e_,
+        B_.c_,
+        B_.s_,
+        &B_.sys_,             // system of ODE
+        &t,                   // from t
+        B_.step_,             // to t <= step
+        &B_.IntegrationStep_, // integration step size
+        S_.y_ );              // neuronal state
+#endif
+
 
       if ( status != GSL_SUCCESS )
       {
@@ -510,6 +594,7 @@ nest::aeif_psc_delta_clopath::update( const Time& origin, const long from, const
       // check for unreasonable values; we allow V_M to explode
       if ( S_.y_[ State_::V_M ] < -1e3 || S_.y_[ State_::W ] < -1e6 || S_.y_[ State_::W ] > 1e6 )
       {
+      printf("after  V_M=%f W=%f\n", S_.y_[ State_::V_M ], S_.y_[ State_::W ]);
         throw NumericalInstability( get_name() );
       }
 
